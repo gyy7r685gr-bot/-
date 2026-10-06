@@ -18,7 +18,7 @@
     <p class="text-xs text-gray-500 mt-1">カード所持数・コレクション管理</p>
   </header>
 
-  <!-- 操作エリア (検索・フィルター・追加) -->
+  <!-- 操作エリア -->
   <div class="bg-white p-4 rounded-2xl card-shadow mb-6 border border-pink-100">
     <div class="flex gap-2 mb-3">
       <input type="text" id="searchInput" placeholder="カード名・ブランドで検索..." class="flex-1 border border-pink-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-pink-400">
@@ -182,7 +182,6 @@
   </div>
 
   <script>
-    // 管理者フラグ (?admin=1 がURLにある場合のみカード追加可能)
     const urlParams = new URLSearchParams(window.location.search);
     const isAdmin = urlParams.get('admin') === '1';
 
@@ -190,7 +189,6 @@
       document.getElementById('addCardBtn').classList.remove('hidden');
     }
 
-    // カードリスト & 所持数データ
     let cards = JSON.parse(localStorage.getItem('aikatsu_app_cards')) || [];
     let userCounts = JSON.parse(localStorage.getItem('aikatsu_user_counts')) || {};
     let currentImageData = "";
@@ -250,7 +248,6 @@
       }).join('');
     }
 
-    // 枚数の更新（アクセスした端末ごとに保存される）
     function updateCount(id, change) {
       const current = userCounts[id] || 0;
       userCounts[id] = Math.max(0, current + change);
@@ -271,7 +268,7 @@
       document.getElementById('modal').classList.add('hidden');
     }
 
-    // 画像の自動縮小・軽量化（容量オーバー防止）
+    // ★画像超軽量化処理（幅200px・画質0.3までリサイズ圧縮）
     function previewImage(event) {
       const file = event.target.files[0];
       if (file) {
@@ -280,14 +277,15 @@
           const img = new Image();
           img.onload = function() {
             const canvas = document.createElement('canvas');
-            const MAX_WIDTH = 400;
+            const MAX_WIDTH = 200; // 横幅200pxに大幅リサイズ
             const scaleSize = MAX_WIDTH / img.width;
             canvas.width = MAX_WIDTH;
             canvas.height = img.height * scaleSize;
 
             const ctx = canvas.getContext('2d');
             ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-            currentImageData = canvas.toDataURL('image/jpeg', 0.6);
+            // JPEG圧縮率を0.3に下げて軽量化
+            currentImageData = canvas.toDataURL('image/jpeg', 0.3);
             document.getElementById('imagePreview').innerHTML = `<img src="${currentImageData}" class="h-full w-full object-cover rounded-lg">`;
           };
           img.src = e.target.result;
