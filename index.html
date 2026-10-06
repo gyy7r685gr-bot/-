@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>アイカツ！アンコール カードバインダー</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body { background-color: #fdf2f8; font-family: sans-serif; }
+    .card-shadow { box-shadow: 0 4px 12px rgba(236, 72, 153, 0.15); }
+  </style>
+</head>
+<body class="p-4 max-w-4xl mx-auto pb-24">
+
+  <!-- ヘッダー -->
+  <header class="text-center my-4">
+    <h1 class="text-2xl font-bold text-pink-600">💖 アイカツ！アンコール Binder 💖</h1>
+    <p class="text-xs text-gray-500 mt-1">カード所持・検索・写真取り込み管理</p>
+  </header>
+
+  <!-- 操作エリア (追加・検索) -->
+  <div class="bg-white p-4 rounded-2xl card-shadow mb-6 border border-pink-100">
+    <div class="flex gap-2 mb-3">
+      <input type="text" id="searchInput" placeholder="カード名・ブランドで検索..." class="flex-1 border border-pink-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-pink-400">
+      <button onclick="openAddModal()" class="bg-pink-500 hover:bg-pink-600 text-white font-bold px-4 py-2 rounded-xl text-sm transition">+ カード追加</button>
+    </div>
+
+    <!-- フィルター -->
+    <div class="grid grid-cols-2 sm:grid-cols-5 gap-2 text-xs">
+      <select id="filterSeries" onchange="renderCards()" class="border border-pink-200 rounded-lg p-2 bg-pink-50/50">
+        <option value="">すべての弾/プロモ</option>
+        <option value="第1弾">第1弾</option>
+        <option value="第2弾">第2弾</option>
+        <option value="プロモ">プロモ</option>
+      </select>
+      <select id="filterType" onchange="renderCards()" class="border border-pink-200 rounded-lg p-2 bg-pink-50/50">
+        <option value="">すべてのタイプ</option>
+        <option value="Cute">Cute</option>
+        <option value="Cool">Cool</option>
+        <option value="Sexy">Sexy</option>
+        <option value="Pop">Pop</option>
+      </select>
+      <select id="filterRarity" onchange="renderCards()" class="border border-pink-200 rounded-lg p-2 bg-pink-50/50">
+        <option value="">すべてのレア度</option>
+        <option value="PR">PR</option>
+        <option value="R">R</option>
+        <option value="N">N</option>
+        <option value="CP">CP</option>
+      </select>
+      <select id="filterBrand" onchange="renderCards()" class="border border-pink-200 rounded-lg p-2 bg-pink-50/50">
+        <option value="">すべてのブランド</option>
+        <option value="Angely Sugar">Angely Sugar</option>
+        <option value="Futuring Girl">Futuring Girl</option>
+        <option value="Spicy Ageha">Spicy Ageha</option>
+        <option value="Loli Gothic">Loli Gothic</option>
+        <option value="Happy Rainbow">Happy Rainbow</option>
+        <option value="その他">その他</option>
+      </select>
+      <select id="filterOwned" onchange="renderCards()" class="border border-pink-200 rounded-lg p-2 bg-pink-50/50 col-span-2 sm:col-span-1">
+        <option value="">すべて表示</option>
+        <option value="owned">所持のみ</option>
+        <option value="unowned">未所持のみ</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- カード一覧表示エリア -->
+  <div id="cardGrid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4"></div>
+
+  <!-- 追加・編集モーダル -->
+  <div id="modal" class="fixed inset-0 bg-black/50 hidden flex items-center justify-center p-4 z-50">
+    <div class="bg-white rounded-2xl p-5 w-full max-w-md max-h-[90vh] overflow-y-auto">
+      <h2 class="text-lg font-bold text-pink-600 mb-4" id="modalTitle">新しいカードを登録</h2>
+      
+      <form id="cardForm" onsubmit="saveCard(event)" class="space-y-3 text-sm">
+        <input type="hidden" id="cardId">
+        
+        <div>
+          <label class="block text-gray-600 text-xs mb-1">カード写真/画像</label>
+          <input type="file" id="cardImageInput" accept="image/*" capture="environment" onchange="previewImage(event)" class="w-full text-xs">
+          <div id="imagePreview" class="mt-2 h-32 bg-gray-100 rounded-lg flex items-center justify-center text-gray-400 text-xs overflow-hidden">
+            画像プレビュー
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-gray-600 text-xs mb-1">カード名 *</label>
+          <input type="text" id="cardName" required class="w-full border rounded-lg p-2 text-sm">
+        </div>
+
+        <div class="grid grid-cols-2 gap-2">
+          <div>
+            <label class="block text-gray-600 text-xs mb-1">弾数/分類</label>
+            <select id="cardSeries" class="w-full border rounded-lg p-2 text-sm">
+              <option value="第1弾">第1弾</option>
+              <option value="第2弾">第2弾</option>
+              <option value="プロモ">プロモ</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-gray-600 text-xs mb-1">タイプ</label>
+            <select id="cardType" class="w-full border rounded-lg p-2 text-sm">
+              <option value="Cute">Cute</option>
+              <option value="Cool">Cool</option>
+              <option value="Sexy">Sexy</option>
+              <option value="Pop">Pop</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-2">
+          <div>
+            <label class="block text-gray-600 text-xs mb-1">レア度</label>
+            <select id="cardRarity" class="w-full border rounded-lg p-2 text-sm">
+              <option value="PR">PR</option>
+              <option value="R">R</option>
+              <option value="N">N</option>
+              <option value="CP">CP</option>
+              <option value="PROMO">PROMO</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-gray-600 text-xs mb-1">ブランド</label>
+            <input type="text" id="cardBrand" placeholder="例: Angely Sugar" class="w-full border rounded-lg p-2 text-sm">
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-gray-600 text-xs mb-1">所持枚数</label>
+          <input type="number" id="cardCount" min="0" value="1" class="w-full border rounded-lg p-2 text-sm">
+        </div>
+
+        <div class="flex gap-2 pt-3">
+          <button type="button" onclick="closeModal()" class="flex-1 bg-gray-200 text-gray-700 py-2 rounded-xl">キャンセル</button>
+          <button type="submit" class="flex-1 bg-pink-500 text-white py-2 rounded-xl font-bold">保存</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    let cards = JSON.parse(localStorage.getItem('aikatsu_cards')) || [];
+    let currentImageData = "";
+
+    document.getElementById('searchInput').addEventListener('input', renderCards);
+
+    function renderCards() {
+      const search = document.getElementById('searchInput').value.toLowerCase();
+      const series = document.getElementById('filterSeries').value;
+      const type = document.getElementById('filterType').value;
+      const rarity = document.getElementById('filterRarity').value;
+      const brand = document.getElementById('filterBrand').value;
+      const owned = document.getElementById('filterOwned').value;
+
+      const filtered = cards.filter(c => {
+        const matchesSearch = c.name.toLowerCase().includes(search) || (c.brand && c.brand.toLowerCase().includes(search));
+        const matchesSeries = !series || c.series === series;
+        const matchesType = !type || c.type === type;
+        const matchesRarity = !rarity || c.rarity === rarity;
+        const matchesBrand = !brand || c.brand === brand;
+        const matchesOwned = !owned || (owned === 'owned' ? c.count > 0 : c.count === 0);
+        return matchesSearch && matchesSeries && matchesType && matchesRarity && matchesBrand && matchesOwned;
+      });
+
+      const grid = document.getElementById('cardGrid');
+      grid.innerHTML = filtered.map(c => `
+        <div class="bg-white rounded-2xl p-3 card-shadow border border-pink-50 relative flex flex-col justify-between">
+          <div>
+            <div class="aspect-[3/4] bg-pink-50 rounded-xl overflow-hidden mb-2 relative">
+              ${c.image ? `<img src="${c.image}" class="w-full h-full object-cover">` : `<div class="w-full h-full flex items-center justify-center text-pink-300 text-xs">NO IMAGE</div>`}
+              <span class="absolute top-1 left-1 bg-black/60 text-white px-1.5 py-0.5 rounded text-[10px] font-bold">${c.rarity}</span>
+              <span class="absolute top-1 right-1 bg-pink-500 text-white px-1.5 py-0.5 rounded text-[10px]">${c.type}</span>
+            </div>
+            <p class="text-xs text-gray-400 font-semibold">${c.series} ${c.brand ? '• ' + c.brand : ''}</p>
+            <h3 class="font-bold text-gray-800 text-sm leading-tight line-clamp-2 my-1">${c.name}</h3>
+          </div>
+
+          <div class="mt-2 pt-2 border-t flex justify-between items-center text-xs">
+            <span class="${c.count > 0 ? 'text-pink-600 font-bold' : 'text-gray-400'}">所持: ${c.count}枚</span>
+            <div class="flex gap-1">
+              <button onclick="updateCount('${c.id}', -1)" class="w-6 h-6 bg-gray-100 rounded-full flex items-center justify-center text-gray-600">-</button>
+              <button onclick="updateCount('${c.id}', 1)" class="w-6 h-6 bg-pink-100 rounded-full flex items-center justify-center text-pink-600 font-bold">+</button>
+            </div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function openAddModal() {
+      document.getElementById('cardForm').reset();
+      document.getElementById('cardId').value = '';
+      document.getElementById('imagePreview').innerHTML = '画像プレビュー';
+      currentImageData = '';
+      document.getElementById('modalTitle').innerText = '新しいカードを登録';
+      document.getElementById('modal').classList.remove('hidden');
+    }
+
+    function closeModal() {
+      document.getElementById('modal').classList.add('hidden');
+    }
+
+    function previewImage(event) {
+      const file = event.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          currentImageData = e.target.result;
+          document.getElementById('imagePreview').innerHTML = `<img src="${currentImageData}" class="h-full w-full object-cover rounded-lg">`;
+        };
+        reader.readAsDataURL(file);
+      }
+    }
+
+    function saveCard(e) {
+      e.preventDefault();
+      const id = document.getElementById('cardId').value || Date.now().toString();
+      const newCard = {
+        id: id,
+        name: document.getElementById('cardName').value,
+        series: document.getElementById('cardSeries').value,
+        type: document.getElementById('cardType').value,
+        rarity: document.getElementById('cardRarity').value,
+        brand: document.getElementById('cardBrand').value,
+        count: parseInt(document.getElementById('cardCount').value) || 0,
+        image: currentImageData
+      };
+
+      const existingIndex = cards.findIndex(c => c.id === id);
+      if (existingIndex >= 0) {
+        cards[existingIndex] = newCard;
+      } else {
+        cards.push(newCard);
+      }
+
+      localStorage.setItem('aikatsu_cards', JSON.stringify(cards));
+      closeModal();
+      renderCards();
+    }
+
+    function updateCount(id, change) {
+      const card = cards.find(c => c.id === id);
+      if (card) {
+        card.count = Math.max(0, card.count + change);
+        localStorage.setItem('aikatsu_cards', JSON.stringify(cards));
+        renderCards();
+      }
+    }
+
+    renderCards();
+  </script>
+</body>
+</html>
