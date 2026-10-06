@@ -226,17 +226,33 @@
       document.getElementById('modal').classList.add('hidden');
     }
 
+        // 画像を自動で小さく圧縮して保存する処理
     function previewImage(event) {
       const file = event.target.files[0];
       if (file) {
         const reader = new FileReader();
         reader.onload = function(e) {
-          currentImageData = e.target.result;
-          document.getElementById('imagePreview').innerHTML = `<img src="${currentImageData}" class="h-full w-full object-cover rounded-lg">`;
+          const img = new Image();
+          img.onload = function() {
+            const canvas = document.createElement('canvas');
+            const MAX_WIDTH = 400; // 横幅最大400pxに縮小
+            const scaleSize = MAX_WIDTH / img.width;
+            canvas.width = MAX_WIDTH;
+            canvas.height = img.height * scaleSize;
+
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+            // 画質0.7で圧縮して大幅軽量化
+            currentImageData = canvas.toDataURL('image/jpeg', 0.7);
+            document.getElementById('imagePreview').innerHTML = `<img src="${currentImageData}" class="h-full w-full object-cover rounded-lg">`;
+          };
+          img.src = e.target.result;
         };
         reader.readAsDataURL(file);
       }
     }
+
 
     function saveCard(e) {
       e.preventDefault();
