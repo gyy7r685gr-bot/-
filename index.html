@@ -3,30 +3,30 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>⭐️🎀アイカツ!アンコール カードバインダー🎀⭐️</title>
+  <title>🎀アイカツ! アンコール Cardbinder⭐️</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
     body { background-color: #fdf2f8; font-family: sans-serif; }
     .card-shadow { box-shadow: 0 4px 12px rgba(236, 72, 153, 0.15); }
   </style>
 </head>
-<body class="p-4 max-w-4xl mx-auto pb-24">
+<body class="p-4 max-w-5xl mx-auto pb-24">
 
   <!-- ヘッダー -->
   <header class="text-center my-4">
-    <h1 class="text-2xl font-bold text-pink-600">⭐️🎀アイカツ!アンコール cardBinder🎀⭐️</h1>
-    <p class="text-xs text-gray-500 mt-1">カード所持・検索・写真取り込み管理</p>
+    <h1 class="text-2xl sm:text-3xl font-bold text-pink-600">🎀アイカツ! アンコール Cardbinder⭐️</h1>
+    <p class="text-xs text-gray-500 mt-1">カード所持数・コレクション管理</p>
   </header>
 
-  <!-- 操作エリア (追加・検索) -->
+  <!-- 操作エリア (検索・フィルター・追加) -->
   <div class="bg-white p-4 rounded-2xl card-shadow mb-6 border border-pink-100">
     <div class="flex gap-2 mb-3">
       <input type="text" id="searchInput" placeholder="カード名・ブランドで検索..." class="flex-1 border border-pink-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-pink-400">
-      <button onclick="openAddModal()" class="bg-pink-500 hover:bg-pink-600 text-white font-bold px-4 py-2 rounded-xl text-sm transition">+ カード追加</button>
+      <button id="addCardBtn" onclick="openAddModal()" class="hidden bg-pink-500 hover:bg-pink-600 text-white font-bold px-4 py-2 rounded-xl text-sm transition">+ カード追加</button>
     </div>
 
-    <!-- フィルター -->
-    <div class="grid grid-cols-2 sm:grid-cols-6 gap-2 text-xs">
+    <!-- フィルター一覧 -->
+    <div class="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-7 gap-2 text-xs">
       <select id="filterSeries" onchange="renderCards()" class="border border-pink-200 rounded-lg p-2 bg-pink-50/50">
         <option value="">すべての弾/プロモ</option>
         <option value="第1弾">第1弾</option>
@@ -35,27 +35,32 @@
         <option value="第4弾">第4弾</option>
         <option value="プロモ">プロモ</option>
       </select>
+
       <select id="filterCategory" onchange="renderCards()" class="border border-pink-200 rounded-lg p-2 bg-pink-50/50">
-        <option value="">すべてのカテゴリー</option>
+        <option value="">すべてのカテゴリ</option>
         <option value="トップス">トップス</option>
+        <option value="ワンピース">ワンピース</option>
         <option value="ボトムス">ボトムス</option>
         <option value="シューズ">シューズ</option>
         <option value="アクセサリー">アクセサリー</option>
       </select>
+
       <select id="filterType" onchange="renderCards()" class="border border-pink-200 rounded-lg p-2 bg-pink-50/50">
         <option value="">すべてのタイプ</option>
-        <option value="Cute">Cute</option>
-        <option value="Cool">Cool</option>
-        <option value="Sexy">Sexy</option>
-        <option value="Pop">Pop</option>
+        <option value="キュート">キュート</option>
+        <option value="クール">クール</option>
+        <option value="セクシー">セクシー</option>
+        <option value="ポップ">ポップ</option>
       </select>
+
       <select id="filterRarity" onchange="renderCards()" class="border border-pink-200 rounded-lg p-2 bg-pink-50/50">
-        <option value="">すべてのレア度</option>
+        <option value="">すべてのレアリティ</option>
         <option value="PR">PR</option>
         <option value="R">R</option>
         <option value="N">N</option>
         <option value="アンコールレア">アンコールレア</option>
       </select>
+
       <select id="filterBrand" onchange="renderCards()" class="border border-pink-200 rounded-lg p-2 bg-pink-50/50">
         <option value="">すべてのブランド</option>
         <option value="ノーブランド">ノーブランド</option>
@@ -64,10 +69,16 @@
         <option value="スパイシーアゲハ">スパイシーアゲハ</option>
         <option value="ドリーミークラウン">ドリーミークラウン</option>
         <option value="メープルリボン">メープルリボン</option>
-      
       </select>
-      <select id="filterOwned" onchange="renderCards()" class="border border-pink-200 rounded-lg p-2 bg-pink-50/50 col-span-2 sm:col-span-1">
-        <option value="">すべて表示</option>
+
+      <select id="filterParallel" onchange="renderCards()" class="border border-pink-200 rounded-lg p-2 bg-pink-50/50">
+        <option value="">パラレル指定なし</option>
+        <option value="parallel">パラレルのみ</option>
+        <option value="normal">通常版のみ</option>
+      </select>
+
+      <select id="filterOwned" onchange="renderCards()" class="border border-pink-200 rounded-lg p-2 bg-pink-50/50">
+        <option value="">所持指定なし</option>
         <option value="owned">所持のみ</option>
         <option value="unowned">未所持のみ</option>
       </select>
@@ -75,9 +86,9 @@
   </div>
 
   <!-- カード一覧表示エリア -->
-  <div id="cardGrid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4"></div>
+  <div id="cardGrid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4"></div>
 
-  <!-- 追加・編集モーダル -->
+  <!-- 追加・編集モーダル（管理者専用） -->
   <div id="modal" class="fixed inset-0 bg-black/50 hidden flex items-center justify-center p-4 z-50">
     <div class="bg-white rounded-2xl p-5 w-full max-w-md max-h-[90vh] overflow-y-auto">
       <h2 class="text-lg font-bold text-pink-600 mb-4" id="modalTitle">新しいカードを登録</h2>
@@ -88,7 +99,7 @@
         <div>
           <label class="block text-gray-600 text-xs mb-1">カード写真/画像</label>
           <input type="file" id="cardImageInput" accept="image/*" onchange="previewImage(event)" class="w-full text-xs">
-          <div id="imagePreview" class="mt-2 h-32 bg-gray-100 rounded-lg flex items-center justify-center text-gray-400 text-xs overflow-hidden">
+          <div id="imagePreview" class="mt-2 h-36 bg-gray-100 rounded-lg flex items-center justify-center text-gray-400 text-xs overflow-hidden">
             画像プレビュー
           </div>
         </div>
@@ -100,7 +111,7 @@
 
         <div class="grid grid-cols-2 gap-2">
           <div>
-            <label class="block text-gray-600 text-xs mb-1">弾数/分類</label>
+            <label class="block text-gray-600 text-xs mb-1">弾数/プロモ</label>
             <select id="cardSeries" class="w-full border rounded-lg p-2 text-sm">
               <option value="第1弾">第1弾</option>
               <option value="第2弾">第2弾</option>
@@ -110,9 +121,10 @@
             </select>
           </div>
           <div>
-            <label class="block text-gray-600 text-xs mb-1">カテゴリー</label>
+            <label class="block text-gray-600 text-xs mb-1">カテゴリ</label>
             <select id="cardCategory" class="w-full border rounded-lg p-2 text-sm">
               <option value="トップス">トップス</option>
+              <option value="ワンピース">ワンピース</option>
               <option value="ボトムス">ボトムス</option>
               <option value="シューズ">シューズ</option>
               <option value="アクセサリー">アクセサリー</option>
@@ -124,20 +136,19 @@
           <div>
             <label class="block text-gray-600 text-xs mb-1">タイプ</label>
             <select id="cardType" class="w-full border rounded-lg p-2 text-sm">
-              <option value="Cute">Cute</option>
-              <option value="Cool">Cool</option>
-              <option value="Sexy">Sexy</option>
-              <option value="Pop">Pop</option>
+              <option value="キュート">キュート</option>
+              <option value="クール">クール</option>
+              <option value="セクシー">セクシー</option>
+              <option value="ポップ">ポップ</option>
             </select>
           </div>
           <div>
-            <label class="block text-gray-600 text-xs mb-1">レア度</label>
+            <label class="block text-gray-600 text-xs mb-1">レアリティ</label>
             <select id="cardRarity" class="w-full border rounded-lg p-2 text-sm">
               <option value="PR">PR</option>
               <option value="R">R</option>
               <option value="N">N</option>
               <option value="アンコールレア">アンコールレア</option>
-              <option value="プロモ">プロモ</option>
             </select>
           </div>
         </div>
@@ -145,11 +156,20 @@
         <div class="grid grid-cols-2 gap-2">
           <div>
             <label class="block text-gray-600 text-xs mb-1">ブランド</label>
-            <input type="text" id="cardBrand" placeholder="例: Angely Sugar" class="w-full border rounded-lg p-2 text-sm">
+            <select id="cardBrand" class="w-full border rounded-lg p-2 text-sm">
+              <option value="ノーブランド">ノーブランド</option>
+              <option value="エンジェリーシュガー">エンジェリーシュガー</option>
+              <option value="フューチャリングガール">フューチャリングガール</option>
+              <option value="スパイシーアゲハ">スパイシーアゲハ</option>
+              <option value="ドリーミークラウン">ドリーミークラウン</option>
+              <option value="メープルリボン">メープルリボン</option>
+            </select>
           </div>
-          <div>
-            <label class="block text-gray-600 text-xs mb-1">所持枚数</label>
-            <input type="number" id="cardCount" min="0" value="1" class="w-full border rounded-lg p-2 text-sm">
+          <div class="flex items-center pt-4">
+            <label class="flex items-center text-xs text-gray-700 font-bold cursor-pointer">
+              <input type="checkbox" id="cardIsParallel" class="mr-2 rounded text-pink-500 focus:ring-pink-400 w-4 h-4">
+              パラレルカード✨
+            </label>
           </div>
         </div>
 
@@ -162,7 +182,17 @@
   </div>
 
   <script>
-    let cards = JSON.parse(localStorage.getItem('aikatsu_cards')) || [];
+    // 管理者フラグ (?admin=1 がURLにある場合のみカード追加可能)
+    const urlParams = new URLSearchParams(window.location.search);
+    const isAdmin = urlParams.get('admin') === '1';
+
+    if (isAdmin) {
+      document.getElementById('addCardBtn').classList.remove('hidden');
+    }
+
+    // カードリスト & 所持数データ
+    let cards = JSON.parse(localStorage.getItem('aikatsu_app_cards')) || [];
+    let userCounts = JSON.parse(localStorage.getItem('aikatsu_user_counts')) || {};
     let currentImageData = "";
 
     document.getElementById('searchInput').addEventListener('input', renderCards);
@@ -174,27 +204,33 @@
       const type = document.getElementById('filterType').value;
       const rarity = document.getElementById('filterRarity').value;
       const brand = document.getElementById('filterBrand').value;
+      const parallel = document.getElementById('filterParallel').value;
       const owned = document.getElementById('filterOwned').value;
 
       const filtered = cards.filter(c => {
+        const count = userCounts[c.id] || 0;
         const matchesSearch = c.name.toLowerCase().includes(search) || (c.brand && c.brand.toLowerCase().includes(search));
         const matchesSeries = !series || c.series === series;
         const matchesCategory = !category || c.category === category;
         const matchesType = !type || c.type === type;
         const matchesRarity = !rarity || c.rarity === rarity;
         const matchesBrand = !brand || c.brand === brand;
-        const matchesOwned = !owned || (owned === 'owned' ? c.count > 0 : c.count === 0);
-        return matchesSearch && matchesSeries && matchesCategory && matchesType && matchesRarity && matchesBrand && matchesOwned;
+        const matchesParallel = !parallel || (parallel === 'parallel' ? c.isParallel : !c.isParallel);
+        const matchesOwned = !owned || (owned === 'owned' ? count > 0 : count === 0);
+        return matchesSearch && matchesSeries && matchesCategory && matchesType && matchesRarity && matchesBrand && matchesParallel && matchesOwned;
       });
 
       const grid = document.getElementById('cardGrid');
-      grid.innerHTML = filtered.map(c => `
+      grid.innerHTML = filtered.map(c => {
+        const count = userCounts[c.id] || 0;
+        return `
         <div class="bg-white rounded-2xl p-3 card-shadow border border-pink-50 relative flex flex-col justify-between">
           <div>
             <div class="aspect-[3/4] bg-pink-50 rounded-xl overflow-hidden mb-2 relative">
-              ${c.image ? `<img src="${c.image}" class="w-full h-full object-cover">` : `<div class="w-full h-full flex items-center justify-center text-pink-300 text-xs">NO IMAGE</div>`}
+              ${c.image ? `<img src="${c.image}" class="w-full h-full object-cover">` : `<div class="w-full h-full flex items-center justify-center text-pink-300 text-xs font-bold">NO IMAGE</div>`}
               <span class="absolute top-1 left-1 bg-black/60 text-white px-1.5 py-0.5 rounded text-[10px] font-bold">${c.rarity}</span>
               <span class="absolute top-1 right-1 bg-pink-500 text-white px-1.5 py-0.5 rounded text-[10px]">${c.type}</span>
+              ${c.isParallel ? `<span class="absolute bottom-1 right-1 bg-yellow-400 text-black font-bold px-1.5 py-0.5 rounded text-[9px]">✨パラレル</span>` : ''}
               ${c.category ? `<span class="absolute bottom-1 left-1 bg-pink-100 text-pink-700 font-bold px-1.5 py-0.5 rounded text-[9px]">${c.category}</span>` : ''}
             </div>
             <p class="text-xs text-gray-400 font-semibold">${c.series || ''} ${c.brand ? '• ' + c.brand : ''}</p>
@@ -202,15 +238,24 @@
           </div>
 
           <div class="mt-2 pt-2 border-t flex justify-between items-center text-xs">
-            <span class="${c.count > 0 ? 'text-pink-600 font-bold' : 'text-gray-400'}">所持: ${c.count}枚</span>
+            <span class="${count > 0 ? 'text-pink-600 font-bold' : 'text-gray-400'}">所持: ${count}枚</span>
             <div class="flex gap-1 items-center">
-              <button onclick="updateCount('${c.id}', -1)" class="w-6 h-6 bg-gray-100 rounded-full flex items-center justify-center text-gray-600">-</button>
-              <button onclick="updateCount('${c.id}', 1)" class="w-6 h-6 bg-pink-100 rounded-full flex items-center justify-center text-pink-600 font-bold">+</button>
-              <button onclick="deleteCard('${c.id}')" title="削除" class="w-6 h-6 ml-1 bg-red-50 text-red-500 rounded-full flex items-center justify-center text-xs hover:bg-red-100">🗑️</button>
+              <button onclick="updateCount('${c.id}', -1)" class="w-6 h-6 bg-gray-100 rounded-full flex items-center justify-center text-gray-600 hover:bg-gray-200">-</button>
+              <button onclick="updateCount('${c.id}', 1)" class="w-6 h-6 bg-pink-100 rounded-full flex items-center justify-center text-pink-600 font-bold hover:bg-pink-200">+</button>
+              ${isAdmin ? `<button onclick="deleteCard('${c.id}')" title="削除" class="w-6 h-6 ml-1 bg-red-50 text-red-500 rounded-full flex items-center justify-center text-xs hover:bg-red-100">🗑️</button>` : ''}
             </div>
           </div>
         </div>
-      `).join('');
+      `;
+      }).join('');
+    }
+
+    // 枚数の更新（アクセスした端末ごとに保存される）
+    function updateCount(id, change) {
+      const current = userCounts[id] || 0;
+      userCounts[id] = Math.max(0, current + change);
+      localStorage.setItem('aikatsu_user_counts', JSON.stringify(userCounts));
+      renderCards();
     }
 
     function openAddModal() {
@@ -226,7 +271,7 @@
       document.getElementById('modal').classList.add('hidden');
     }
 
-        // 画像を自動で小さく圧縮して保存する処理
+    // 画像の自動縮小・軽量化（容量オーバー防止）
     function previewImage(event) {
       const file = event.target.files[0];
       if (file) {
@@ -235,16 +280,14 @@
           const img = new Image();
           img.onload = function() {
             const canvas = document.createElement('canvas');
-            const MAX_WIDTH = 400; // 横幅最大400pxに縮小
+            const MAX_WIDTH = 400;
             const scaleSize = MAX_WIDTH / img.width;
             canvas.width = MAX_WIDTH;
             canvas.height = img.height * scaleSize;
 
             const ctx = canvas.getContext('2d');
             ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-
-            // 画質0.7で圧縮して大幅軽量化
-            currentImageData = canvas.toDataURL('image/jpeg', 0.7);
+            currentImageData = canvas.toDataURL('image/jpeg', 0.6);
             document.getElementById('imagePreview').innerHTML = `<img src="${currentImageData}" class="h-full w-full object-cover rounded-lg">`;
           };
           img.src = e.target.result;
@@ -253,10 +296,9 @@
       }
     }
 
-
     function saveCard(e) {
       e.preventDefault();
-      const id = document.getElementById('cardId').value || Date.now().toString();
+      const id = 'card_' + Date.now().toString();
       const newCard = {
         id: id,
         name: document.getElementById('cardName').value,
@@ -265,35 +307,24 @@
         type: document.getElementById('cardType').value,
         rarity: document.getElementById('cardRarity').value,
         brand: document.getElementById('cardBrand').value,
-        count: parseInt(document.getElementById('cardCount').value) || 0,
+        isParallel: document.getElementById('cardIsParallel').checked,
         image: currentImageData
       };
 
-      const existingIndex = cards.findIndex(c => c.id === id);
-      if (existingIndex >= 0) {
-        cards[existingIndex] = newCard;
-      } else {
-        cards.push(newCard);
-      }
-
-      localStorage.setItem('aikatsu_cards', JSON.stringify(cards));
-      closeModal();
-      renderCards();
-    }
-
-    function updateCount(id, change) {
-      const card = cards.find(c => c.id === id);
-      if (card) {
-        card.count = Math.max(0, card.count + change);
-        localStorage.setItem('aikatsu_cards', JSON.stringify(cards));
+      cards.push(newCard);
+      try {
+        localStorage.setItem('aikatsu_app_cards', JSON.stringify(cards));
+        closeModal();
         renderCards();
+      } catch (err) {
+        alert("端末の保存上限に達しました。不要なカードを削除してください。");
       }
     }
 
     function deleteCard(id) {
-      if (confirm('このカードを削除してもよろしいですか？')) {
+      if (confirm('このカードをバインダーから削除しますか？')) {
         cards = cards.filter(c => c.id !== id);
-        localStorage.setItem('aikatsu_cards', JSON.stringify(cards));
+        localStorage.setItem('aikatsu_app_cards', JSON.stringify(cards));
         renderCards();
       }
     }
